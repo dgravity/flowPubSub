@@ -11,30 +11,30 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class FlowLearningApp {
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main (String[] args) throws InterruptedException {
         // Create a Publisher that emits Task objects with simulated delays
         Flow.Publisher<Task> publisher = new Flow.Publisher<>() {
+            private final AtomicInteger count = new AtomicInteger(1);
             private Flow.Subscriber<? super Task> subscriber;
-            private AtomicInteger count = new AtomicInteger(1);
 
             @Override
-            public void subscribe(Flow.Subscriber<? super Task> subscriber) {
+            public void subscribe (Flow.Subscriber<? super Task> subscriber) {
                 this.subscriber = subscriber;
                 subscriber.onSubscribe(new Flow.Subscription() {
                     private long demand = 0;
 
                     @Override
-                    public void request(long n) {
+                    public void request (long n) {
                         demand += n;
                         emitNextTask(Math.min(demand, 1)); // Emit tasks in chunks of 1
                     }
 
                     @Override
-                    public void cancel() {
+                    public void cancel () {
                         // Handle cancellation if needed
                     }
 
-                    private void emitNextTask(long n) {
+                    private void emitNextTask (long n) {
                         while (n > 0 && count.get() <= 3) { // Simulate producing 3 tasks
                             try {
                                 TaskId taskId = new TaskId(UUID.randomUUID());
@@ -62,13 +62,13 @@ public class FlowLearningApp {
             private long demand = 20; // Initial demand
 
             @Override
-            public void onSubscribe(Flow.Subscription subscription) {
+            public void onSubscribe (Flow.Subscription subscription) {
                 this.subscription = subscription;
                 subscription.request(demand);
             }
 
             @Override
-            public void onNext(Task task) {
+            public void onNext (Task task) {
                 System.out.println("Received task: " + task.getId() + ", timestamp: " + task.getTimestamp()
                         + ", operation: " + task.getOperationName());
                 // Simulate processing time
@@ -85,12 +85,12 @@ public class FlowLearningApp {
             }
 
             @Override
-            public void onError(Throwable error) {
+            public void onError (Throwable error) {
                 System.err.println("Error: " + error.getMessage());
             }
 
             @Override
-            public void onComplete() {
+            public void onComplete () {
                 System.out.println("Stream completed.");
             }
         };
